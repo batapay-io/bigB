@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import { usePostHog } from 'posthog-js/react';
 
 export default function NewsletterBlock({ data, editing }) {
   const { 
@@ -12,6 +13,7 @@ export default function NewsletterBlock({ data, editing }) {
 
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
+  const posthog = usePostHog();
 
   if (!heading && !body) {
     return (
@@ -36,6 +38,10 @@ export default function NewsletterBlock({ data, editing }) {
       
       if (!res.ok) throw new Error('Failed to subscribe');
       setStatus('success');
+      posthog?.capture('newsletter_subscribed', {
+        theme: theme,
+        layout: layout
+      });
     } catch (err) {
       console.error(err);
       setStatus('error');

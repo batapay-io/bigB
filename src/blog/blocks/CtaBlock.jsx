@@ -1,4 +1,8 @@
+"use client";
+import { usePostHog } from 'posthog-js/react';
+
 export default function CtaBlock({ data, editing }) {
+  const posthog = usePostHog();
   const { 
     heading = '', 
     body = '', 
@@ -63,7 +67,14 @@ export default function CtaBlock({ data, editing }) {
           <a 
             href={href} 
             className={buttonClass}
-            onClick={(e) => editing && e.preventDefault()}
+            onClick={(e) => {
+              if (editing) e.preventDefault();
+              posthog?.capture('clicked_cta', {
+                button_label: buttonLabel,
+                url: href,
+                heading: heading,
+              });
+            }}
           >
             {buttonLabel}
           </a>

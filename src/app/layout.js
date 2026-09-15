@@ -34,13 +34,19 @@ export const metadata = {
   }
 };
 
+import { CSPostHogProvider } from './providers';
+
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
       className={`${plusJakartaSans.variable} ${lora.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <CSPostHogProvider>
+          {children}
+        </CSPostHogProvider>
+      </body>
     </html>
   );
 }

@@ -1,3 +1,6 @@
+"use client";
+import { usePostHog } from 'posthog-js/react';
+
 // Mock data for auto-populated related posts preview
 const MOCK_POSTS = [
   { title: 'The Future of Digital Banking', url: '#', date: 'Oct 12', readTime: '5 min' },
@@ -6,6 +9,7 @@ const MOCK_POSTS = [
 ];
 
 export default function RelatedPostsBlock({ data, editing }) {
+  const posthog = usePostHog();
   const { 
     mode = 'auto-by-tag', 
     count = 3, 
@@ -34,7 +38,13 @@ export default function RelatedPostsBlock({ data, editing }) {
             key={index} 
             href={post.url || '#'} 
             className="group py-5 flex flex-col md:flex-row md:items-center justify-between border-b border-border hover:bg-accent/5 transition-colors -mx-4 px-4 rounded-[12px] md:rounded-none md:mx-0 md:px-0"
-            onClick={(e) => editing && e.preventDefault()}
+            onClick={(e) => {
+              if (editing) e.preventDefault();
+              posthog?.capture('clicked_related_post', {
+                post_title: post.title || 'Untitled Post',
+                url: post.url || '#'
+              });
+            }}
           >
             <h4 className="font-sans font-bold text-[17px] text-ink group-hover:text-accent transition-colors mb-2 md:mb-0 pr-4">
               {post.title || 'Untitled Post'}

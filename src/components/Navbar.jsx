@@ -4,6 +4,7 @@ import { animate, createTimeline, createScope, onScroll } from 'animejs';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
+import { usePostHog } from 'posthog-js/react';
 import Logo from './Logo';
 
 export default function Navbar() {
@@ -11,9 +12,14 @@ export default function Navbar() {
   const scope = useRef(null);
   const dropdownRef = useRef(null);
   const dropdownAnim = useRef(null);
+  const posthog = usePostHog();
 
   const pathname = usePathname();
   const router = useRouter();
+
+  const trackNav = (name) => {
+    posthog?.capture('clicked_nav_link', { name });
+  };
 
   useEffect(() => {
     scope.current = createScope({ root: root.current }).add(() => {
@@ -52,7 +58,7 @@ export default function Navbar() {
           const shouldBeScrolled = window.scrollY > 40;
           if (shouldBeScrolled !== scrolled) {
             scrolled = shouldBeScrolled;
-            
+
             if (scrolled) {
               animate(navEl, {
                 paddingTop: 10,
@@ -158,7 +164,7 @@ export default function Navbar() {
     <div ref={root}>
       <div className="nav-wrapper opacity-0 fixed left-1/2 -translate-x-1/2 w-[90%] max-w-[1300px] z-50" style={{ top: '-80px' }}>
         <nav className="bg-white px-5 py-3 md:px-8 md:py-4 rounded-full shadow-lg border border-black/5 flex items-center justify-between transition-shadow">
-          <a href="https://amalgamic.io/" className="nav-logo opacity-0 hover:opacity-80 transition-opacity">
+          <a href="https://amalgamic.io/" onClick={() => trackNav('Logo')} className="nav-logo opacity-0 hover:opacity-80 transition-opacity">
             <Logo />
           </a>
 
@@ -185,6 +191,7 @@ export default function Navbar() {
 
                 <a
                   href="https://amalgamic.io/#assistant"
+                  onClick={() => trackNav('Features: Assistant')}
                   className="flex flex-col px-4 py-3 rounded-xl hover:bg-black/5 transition-colors"
                 >
                   <span className="text-[13px] font-bold text-ink">Assistant</span>
@@ -192,6 +199,7 @@ export default function Navbar() {
                 </a>
                 <a
                   href="https://amalgamic.io/#subscriptions"
+                  onClick={() => trackNav('Features: Subscriptions')}
                   className="flex flex-col px-4 py-3 rounded-xl hover:bg-black/5 transition-colors"
                 >
                   <span className="text-[13px] font-bold text-ink">Subscriptions</span>
@@ -199,6 +207,7 @@ export default function Navbar() {
                 </a>
                 <a
                   href="https://amalgamic.io/#how-it-works"
+                  onClick={() => trackNav('Features: How it works')}
                   className="flex flex-col px-4 py-3 rounded-xl hover:bg-black/5 transition-colors"
                 >
                   <span className="text-[13px] font-bold text-ink">How it works</span>
@@ -208,13 +217,15 @@ export default function Navbar() {
             </div>
 
             <a href="https://amalgamic.io/about"
-               className={`nav-link opacity-0 relative px-2 py-2 transition-all duration-300 flex flex-col items-center group ${pathname === '/about' ? 'text-ink font-bold' : 'hover:text-ink'}`}
+              onClick={() => trackNav('About')}
+              className={`nav-link opacity-0 relative px-2 py-2 transition-all duration-300 flex flex-col items-center group ${pathname === '/about' ? 'text-ink font-bold' : 'hover:text-ink'}`}
             >
               About
               <span className={`absolute -bottom-1 w-1 h-1 rounded-full bg-ink transition-all duration-300 ${pathname === '/about' ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'}`} />
             </a>
             <a href="https://amalgamic.io/faq"
-               className={`nav-link opacity-0 relative px-2 py-2 transition-all duration-300 flex flex-col items-center group ${pathname === '/faq' ? 'text-ink font-bold' : 'hover:text-ink'}`}
+              onClick={() => trackNav('FAQ')}
+              className={`nav-link opacity-0 relative px-2 py-2 transition-all duration-300 flex flex-col items-center group ${pathname === '/faq' ? 'text-ink font-bold' : 'hover:text-ink'}`}
             >
               FAQ
               <span className={`absolute -bottom-1 w-1 h-1 rounded-full bg-ink transition-all duration-300 ${pathname === '/faq' ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'}`} />
@@ -222,8 +233,8 @@ export default function Navbar() {
           </div>
 
           <div className="nav-cta opacity-0 flex items-center gap-4 md:gap-6">
-            <a href="https://amalgamic.io/contact" className="text-[15px] font-bold text-ink hover:opacity-70 transition-opacity hidden sm:block">Contact</a>
-            <a href="https://cards.amalgamic.io/auth/signin" className="bg-ink text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-[15px] font-bold hover:opacity-80 transition-opacity shadow-sm inline-block text-center">
+            <a href="https://amalgamic.io/contact" onClick={() => trackNav('Contact')} className="text-[15px] font-bold text-ink hover:opacity-70 transition-opacity hidden sm:block">Contact</a>
+            <a href="https://cards.amalgamic.io/auth/signin" onClick={() => trackNav('Get Started')} className="bg-ink text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-[15px] font-bold hover:opacity-80 transition-opacity shadow-sm inline-block text-center">
               Get Started
             </a>
           </div>
